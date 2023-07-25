@@ -26,11 +26,11 @@ import re
 from pathlib import Path
 
 class EpubConsolidator:
-    def __init__(self, base_path):
+    def __init__(self, base_path, character_limit = 350000):
         self.base_path = Path(base_path)
         self.order_file = self.base_path / "files_order.txt" # Updated file name
         self.order = self.read_order_file()
-
+        self.character_limit = character_limit
     def read_order_file(self):
         with open(self.order_file, 'r', encoding='utf-8') as file:
             order = file.readlines()
@@ -79,7 +79,7 @@ class EpubConsolidator:
 
         for line in combined_files.split('\n'):
             line_length = len(line)
-            if char_count + line_length >= 380000:
+            if char_count + line_length >= self.character_limit:
                 file_number += 1
                 output_file = output_file_base.with_name(f"{output_file_base.stem}_{file_number}.txt")
                 char_count = 0
@@ -89,10 +89,10 @@ class EpubConsolidator:
 
         print(f"Files consolidated and saved to {output_file_base.stem}_*.txt files successfully.")
 
-def consolidate(books_folder):
+def consolidate(books_folder,character_limit):
     books_folder = Path(books_folder)
     for book_folder in books_folder.iterdir():
         if book_folder.is_dir():
-            consolidator = EpubConsolidator(book_folder)
+            consolidator = EpubConsolidator(book_folder,character_limit)
             combined_files = consolidator.consolidate_files()
             consolidator.save_consolidated_files(combined_files)
