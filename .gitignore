@@ -3,3 +3,5 @@
 
 # Ignore the whole "books" folder
 /books/
+
+__pycache__/
