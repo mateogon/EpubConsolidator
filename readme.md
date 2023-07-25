@@ -23,10 +23,9 @@ EpubToClaude is designed to be easy to use. With the EpubToClaude and your `.epu
 1. Clone the repository or download the scripts.
 2. Place your `.epub` files in the same directory as the `run.py` script.
 3. Run the `run.py` script. This will automatically extract the `.xhtml` files from your `.epub` books and consolidate the text into manageable segments.
-4. The output files are located in the 'books' directory, in subdirectories named after each input `.epub` file. The consolidated text files are named in the format `book_segment_*.txt`.
 
 ```bash
 python run.py
 ```
 
-After running the script, you'll find the output files in the 'books' directory, with each book having its own subdirectory named after the book.
+4. The output files are located in the 'books' directory, in subdirectories named after each input `.epub` file. The consolidated text files are named in the format `book_segment_*.txt`.
