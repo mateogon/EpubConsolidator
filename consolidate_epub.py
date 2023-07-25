@@ -25,15 +25,14 @@ import os
 import re
 from pathlib import Path
 
-
 class EpubConsolidator:
     def __init__(self, base_path):
         self.base_path = Path(base_path)
-        self.order_file = self.base_path / "xhtml_files_order.txt"
+        self.order_file = self.base_path / "files_order.txt" # Updated file name
         self.order = self.read_order_file()
 
     def read_order_file(self):
-        with open(self.order_file, 'r') as file:
+        with open(self.order_file, 'r', encoding='utf-8') as file:
             order = file.readlines()
         return [x.strip() for x in order]
 
@@ -48,7 +47,7 @@ class EpubConsolidator:
         for file_name in self.order:
             full_file_path = self.base_path / file_name
             if full_file_path.is_file():
-                with open(full_file_path, 'r', errors='replace') as file:  
+                with open(full_file_path, 'r', encoding='utf-8', errors='replace') as file:  
                     file_content = file.read()
                     
                     # Calculate the proportion of HTML tags in the file content
@@ -97,4 +96,3 @@ def consolidate(books_folder):
             consolidator = EpubConsolidator(book_folder)
             combined_files = consolidator.consolidate_files()
             consolidator.save_consolidated_files(combined_files)
-            

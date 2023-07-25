@@ -10,9 +10,9 @@ The project aims to maximize the utility of the Claude 2 LLM for extracting key 
 
 EpubToClaude consists of two main components:
 
-1. **EpubExtractor:** A module that extracts `.xhtml` files from the `.epub` books. The EpubExtractor identifies the `.opf` file, which contains metadata about the book and the manifest detailing the order of the `.xhtml` files. The EpubExtractor then proceeds to extract the `.xhtml` files in the order indicated by the `.opf` file.
+1. **EpubExtractor:** A module that extracts `.xhtml` and `.html` files from the `.epub` books. The EpubExtractor identifies the `.opf` file, which contains metadata about the book and the manifest detailing the order of the `.xhtml` and `.html` files. The EpubExtractor then proceeds to extract the `.xhtml` and `.html` files in the order indicated by the `.opf` file.
 
-2. **CodeConsolidator:** This module processes the extracted `.xhtml` files by removing HTML tags and empty lines. If a significant portion of a file is composed of HTML content (more than 50%), it is skipped. The cleaned text from the files is then consolidated into larger text files, each containing no more than 380,000 characters.
+2. **EpubConsolidator:** This module processes the extracted `.xhtml` and `.html` files by removing HTML tags and empty lines. If a significant portion of a file is composed of HTML content (more than 50%), it is skipped. The cleaned text from the files is then consolidated into larger text files, each containing no more than 380,000 characters.
 
 ## Usage
 
@@ -22,7 +22,7 @@ EpubToClaude is designed to be easy to use. With the EpubToClaude and your `.epu
 
 1. Clone the repository or download the scripts.
 2. Place your `.epub` files in the same directory as the `run.py` script.
-3. Run the `run.py` script. This will automatically extract the `.xhtml` files from your `.epub` books and consolidate the text into manageable segments.
+3. Run the `run.py` script. This will automatically extract the `.xhtml` and `.html` files from your `.epub` books and consolidate the text into manageable segments.
 
 ```bash
 python run.py

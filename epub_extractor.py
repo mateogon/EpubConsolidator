@@ -21,8 +21,8 @@
     It finds all .epub files in the current directory and creates an instance of the EpubExtractor class for each .epub file. It then calls the find_opf_file and extract_xhtml_files methods to extract the contents of each .epub file.
  '''
  
+
 import logging
-import argparse
 from pathlib import Path
 import zipfile
 from xml.etree import ElementTree
@@ -57,17 +57,19 @@ class EpubExtractor:
 
                 manifest_items = tree.findall('.//{http://www.idpf.org/2007/opf}item')
 
-                xhtml_files_order = [item.attrib['href'] for item in manifest_items if 'xhtml' in item.attrib['href']]
-                self.save_order_to_file(xhtml_files_order)
+                # Extend search to include .html files
+                files_order = [item.attrib['href'] for item in manifest_items if 'html' in item.attrib['href']]
+                self.save_order_to_file(files_order)
 
                 return file
         return None
 
     def extract_xhtml_files(self) -> None:
-        """Extracts all .xhtml files from the epub file."""
+        """Extracts all .xhtml and .html files from the epub file."""
         with zipfile.ZipFile(self.epub_path, 'r') as myzip:
             for file in myzip.namelist():
-                if file.endswith('.xhtml'):
+                # Extend extraction to include .html files
+                if file.endswith('.xhtml') or file.endswith('.html'):
                     with myzip.open(file) as content_file:
                         content = content_file.read()
 
@@ -77,14 +79,14 @@ class EpubExtractor:
                     logging.info(f"Extracted file: {output_file_path}")
 
 
-    def save_order_to_file(self, xhtml_files_order: list) -> None:
-        """Saves the order of XHTML files to a text file."""
-        order_file_path = self.output_folder / "xhtml_files_order.txt"
+    def save_order_to_file(self, files_order: list) -> None:
+        """Saves the order of XHTML and HTML files to a text file."""
+        order_file_path = self.output_folder / "files_order.txt"
         with open(order_file_path, 'w') as order_file:
-            for xhtml_file in xhtml_files_order:
-                file_name = os.path.basename(xhtml_file)
+            for file in files_order:
+                file_name = os.path.basename(file)
                 order_file.write(file_name + "\n")
-        logging.info(f"XHTML files order saved to {order_file_path}")
+        logging.info(f"Files order saved to {order_file_path}")
 
 
 def extract():
