@@ -1,0 +1,5 @@
+# Ignore EPUB files
+*.epub
+
+# Ignore the whole "books" folder
+/books/
