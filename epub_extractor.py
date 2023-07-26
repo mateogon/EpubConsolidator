@@ -29,9 +29,20 @@ from xml.etree import ElementTree
 import os
 from collections import defaultdict
 from typing import Optional
+from markdownify import MarkdownConverter
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
+
+class CustomMarkdownConverter(MarkdownConverter):
+    def convert_tr(self, el, text, convert_as_inline): # Fix table tags
+        return '\n\n' + super().convert_tr(el, text, convert_as_inline)
+    def convert_td(self, el, text, convert_as_inline): # Fix table elements
+        return ' ' + text.strip() + ' |'
+
+def HTML2Markdown(html, **options):
+    return CustomMarkdownConverter(**options).convert(html)
+
 
 class EpubExtractor:
     def __init__(self, epub_path: str):
@@ -72,10 +83,13 @@ class EpubExtractor:
                 if file.endswith('.xhtml') or file.endswith('.html'):
                     with myzip.open(file) as content_file:
                         content = content_file.read()
+                        
+                    # Convert HTML/XHTML to Markdown
+                    content_res = HTML2Markdown(content, strip=['a','image', 'img'])
 
                     output_file_path = self.output_folder / Path(file).name
                     with open(output_file_path, 'wb') as new_file:
-                        new_file.write(content)
+                        new_file.write(content_res.encode('utf-8'))
                     logging.info(f"Extracted file: {output_file_path}")
 
 
