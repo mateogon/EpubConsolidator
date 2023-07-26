@@ -1,5 +1,13 @@
-# EpubToClaude
+# Epub2Markdown
 
+* Disclaimer: Original Source from https://github.com/mateogon/EpubToClaude
+  * This code is forked to use LLM/AI-ops.
+  * Original code is to engage Claude 2 LLM model, but, this code is to process LLM training or so. (more general usage)
+
+
+----
+
+# EpubToClaude
 EpubToClaude is a Python tool designed to streamline the process of extracting and consolidating text from `.epub` files for processing with the Claude 2 Language Model (LLM). It breaks down books into manageable parts, each containing approximately 380,000 characters, to facilitate seamless interaction with the LLM without reaching character limit.
 
 ## Motivation
