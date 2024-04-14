@@ -2,8 +2,8 @@ from epub_extractor import extract
 from consolidate_epub import consolidate
 
 def main():
-    character_limit = 340000
-    # Extract .xhtml files from .epub files
+    character_limit = 9999999999
+    # Extract files from .epub files
     extract()
 
     # Consolidate .xhtml files into text files

@@ -1,31 +1,31 @@
-# EpubToClaude
+# EpubConsolidator
 
-EpubToClaude is a Python tool designed to streamline the process of extracting and consolidating text from `.epub` files for processing with the Claude 2 Language Model (LLM). It breaks down books into manageable parts, each containing approximately 380,000 characters, to facilitate seamless interaction with the LLM without reaching character limit.
+EpubConsolidator is a versatile Python tool designed to simplify the process of converting `.epub` files into clean, consolidated text suitable for querying any large language model (LLM). It efficiently processes `.epub` files, removing unnecessary HTML and metadata, and segments the text into manageable parts to overcome character limits typically imposed by LLMs.
 
-## Motivation
+## Overview
 
-The project aims to maximize the utility of the Claude 2 LLM for extracting key insights from books or answering any question about a book. Given the character limit imposed by the LLM, EpubToClaude ensures that the text from the books is appropriately broken down into manageable segments that can be efficiently processed by the LLM.
+The tool is ideal for users looking to extract pure textual content from books, making it easier to leverage LLMs for insights, research, or any form of textual analysis. EpubConsolidator ensures that users receive only the essential content, free from formatting distractions, allowing for more effective interaction with various LLM technologies.
 
-## How it Works
+## Components
 
-EpubToClaude consists of two main components:
+EpubConsolidator consists of two main components:
 
-1. **EpubExtractor:** A module that extracts `.xhtml` and `.html` files from the `.epub` books. The EpubExtractor identifies the `.opf` file, which contains metadata about the book and the manifest detailing the order of the `.xhtml` and `.html` files. The EpubExtractor then proceeds to extract the `.xhtml` and `.html` files in the order indicated by the `.opf` file.
+1. **EpubExtractor:** Extracts `.xhtml` and `.html` files based on the order defined in the `.opf` file contained within the `.epub`, ensuring the textual content retains its original narrative sequence.
 
-2. **EpubConsolidator:** This module processes the extracted `.xhtml` and `.html` files by removing HTML tags and empty lines. If a significant portion of a file is composed of HTML content (more than 50%), it is skipped. The cleaned text from the files is then consolidated into larger text files, each containing no more than 380,000 characters.
+2. **EpubConsolidator:** Cleans the extracted files by removing HTML tags and unnecessary sections like indexes or footnotes. The process respects the character limitations of LLMs by segmenting the text into parts.
 
 ## Usage
 
-EpubToClaude is designed to be easy to use. With the EpubToClaude and your `.epub` files in the same directory, you can run the `run.py` script. The script will automatically find all `.epub` files in the directory, extract the `.xhtml` files from them, and consolidate the text into larger files. The output files are saved in the 'books' directory, with each book having its own subdirectory.
+To use EpubConsolidator, simply place your `.epub` files in the same directory as the tool and execute the provided script. This automatically handles the extraction and consolidation of the text into clean segments ready for LLM processing.
 
 ## How to Run
 
-1. Clone the repository or download the scripts.
-2. Place your `.epub` files in the same directory as the `run.py` script.
-3. Run the `run.py` script. This will automatically extract the `.xhtml` and `.html` files from your `.epub` books and consolidate the text into manageable segments.
+1. Clone or download the repository.
+2. Ensure your `.epub` files are in the epub folder.
+3. Execute the script to start the extraction and consolidation process:
 
 ```bash
 python run.py
 ```
 
-4. The output files are located in the 'books' directory, in subdirectories named after each input `.epub` file. The consolidated text files are named in the format `book_segment_*.txt`.
+4. Find the output in the 'books' directory, organized into subdirectories named after the original .epub files, with consolidated text files labeled as book*segment*\*.txt.

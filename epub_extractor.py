@@ -1,26 +1,3 @@
-'''
-## `EpubExtractor` Class
-    The `EpubExtractor` class is designed to extract content from `.epub` files. The class has several methods to accomplish this:
-
-### `__init__(self, epub_path: str)`
-    The class constructor takes a string argument, `epub_path`, which is the path to the `.epub` file to be processed. It initializes the class with this path and creates an output folder for the extracted contents.
-
-### `create_output_folder(self) -> Path`
-    This method creates an output folder for the extracted contents based on the name of the `.epub` file. The folder is created inside a parent directory named "books". If the parent directory does not exist, it is created. 
-
-### `find_opf_file(self, myzip: zipfile.ZipFile) -> Optional[str]`
-    This method takes a `zipfile.ZipFile` object as argument, representing the `.epub` file to be processed. It searches for the `.opf` file inside the `.epub` file, which contains metadata and the manifest for the `.epub` file. The method extracts the order of `.xhtml` files listed in the `.opf` file and saves this order to a `.txt` file by calling the `save_order_to_file` method. If the `.opf` file is found, the method returns its name; otherwise, it returns `None`.
-
-### `extract_xhtml_files(self) -> None`
-    This method extracts all `.xhtml` files from the `.epub` file and saves them to the output directory created by `create_output_folder`. Each `.xhtml` file is saved under its own name.
-
-### `save_order_to_file(self, xhtml_files_order: list) -> None`
-    This method takes a list of `.xhtml` file names and saves them to a `.txt` file in the order they appear in the `.opf` file. The `.txt` file is saved to the output directory.
-
-## `extract()` Function
-    It finds all .epub files in the current directory and creates an instance of the EpubExtractor class for each .epub file. It then calls the find_opf_file and extract_xhtml_files methods to extract the contents of each .epub file.
- '''
- 
 
 import logging
 from pathlib import Path
@@ -57,19 +34,20 @@ class EpubExtractor:
 
                 manifest_items = tree.findall('.//{http://www.idpf.org/2007/opf}item')
 
-                # Extend search to include .html files
-                files_order = [item.attrib['href'] for item in manifest_items if 'html' in item.attrib['href']]
+                # Extend search to include .htm files
+                files_order = [item.attrib['href'] for item in manifest_items if 'html' in item.attrib['href'] or item.attrib['href'].endswith('.htm')]
                 self.save_order_to_file(files_order)
 
                 return file
         return None
+
 
     def extract_xhtml_files(self) -> None:
         """Extracts all .xhtml and .html files from the epub file."""
         with zipfile.ZipFile(self.epub_path, 'r') as myzip:
             for file in myzip.namelist():
                 # Extend extraction to include .html files
-                if file.endswith('.xhtml') or file.endswith('.html'):
+                if file.endswith('.xhtml') or file.endswith('.html') or file.endswith('.htm'):
                     with myzip.open(file) as content_file:
                         content = content_file.read()
 

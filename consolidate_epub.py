@@ -1,26 +1,3 @@
-'''
-EpubConsolidator Documentation
-Overview
-The EpubConsolidator class is designed to consolidate .xhtml files extracted from .epub books into a combined text file. The order of consolidation is determined from an order file named xhtml_files_order.txt found in the same directory as the .xhtml files.
-
-Class Methods
-__init__(self, base_path: str)
-The constructor method for the EpubConsolidator class. It takes the base path where the extracted .xhtml files are located as an argument.
-
-read_order_file(self)
-This method reads the xhtml_files_order.txt file and returns a list of .xhtml file names in the order they should be consolidated.
-
-remove_html_tags_and_empty_lines(self, text: str)
-A helper method that takes a string, removes all HTML tags and empty lines from it, and returns the cleaned text.
-
-consolidate_files(self)
-This method reads all the .xhtml files listed in the order file, removes the HTML tags and empty lines from each file's content, and concatenates the contents in order. If a file is mainly composed of HTML (more than 50% of its content), it is skipped. The method returns a string of the consolidated content.
-
-save_consolidated_files(self, combined_files: str)
-This method saves the consolidated content to one or more text files. Each output file contains no more than 380000 characters. The output files are named book_segment_1.txt, book_segment_2.txt, etc., and are stored in the same directory as the .xhtml files. If such named files already exist in the directory, they are deleted before the new files are saved.
-
-'''
-
 import os
 import re
 from pathlib import Path
@@ -37,34 +14,86 @@ class EpubConsolidator:
         return [x.strip() for x in order]
 
     def remove_html_tags_and_empty_lines(self, text):
-        text = re.sub("<.*?>", "", text)
+        # Remove all spaces and tabs first
+        text = re.sub(r"\s+", " ", text)  # This collapses all whitespace into single spaces for cleaner processing
+        
+        # Insert a newline before the start and after the end of <p> and <h1> tags
+        text = re.sub(r"<div[^>]*>", "", text)
+        text = re.sub(r"</div>", "\n", text)
+        text = re.sub(r"<p[^>]*>", "", text)
+        text = re.sub(r"</p>", "\n", text)
+        text = re.sub(r"<h1[^>]*>", "", text)
+        text = re.sub(r"</h1>", "\n", text)
+        text = re.sub(r"<a[^>]*>", "", text)
+        text = re.sub(r"</a>", "\n", text)
+        text = re.sub(r"<span[^>]*>", "", text)
+        text = re.sub(r"<link[^>]*/>", "", text)
+        text = re.sub(r"</span>", "\n", text)
+        # Remove DOCTYPE declarations
+        text = re.sub(r"<!DOCTYPE[^>]*>", "", text)
+        text = re.sub(r"&nbsp;"," ",text)
+        # Remove CSS style blocks
+        text = re.sub(r"<style.*?>.*?</style>", "", text, flags=re.DOTALL)
+
+        # Remove HTML comments
+        text = re.sub(r"<!--.*?-->", "", text, flags=re.DOTALL)
+
+        # Remove all other HTML tags
+        text = re.sub(r"<.*?>", "", text)
+
+        # Remove consecutive spaces and tabs
+        #text = re.sub(r"\s+", " ", text)
+
+        # Split text into lines and remove empty lines
         lines = text.split('\n')
-        non_empty_lines = [line for line in lines if line.strip() != '' and not line.isdigit()]
+        non_empty_lines = [line for line in lines if line.strip() != '']
+        
         return '\n'.join(non_empty_lines)
+        #return text
+
+
 
     def consolidate_files(self):
         combined_files = ""
+        copyright_keywords = [
+            "copyright", "all rights reserved",
+            "ISBN", "Library of Congress"
+        ]
         for file_name in self.order:
             full_file_path = self.base_path / file_name
             if full_file_path.is_file():
-                with open(full_file_path, 'r', encoding='utf-8', errors='replace') as file:  
+                with open(full_file_path, 'r', encoding='utf-8', errors='replace') as file:
                     file_content = file.read()
-                    
-                    # Calculate the proportion of HTML tags in the file content
+
                     html_content = re.findall("<.*?>", file_content)
                     html_content_length = sum(len(tag) for tag in html_content)
                     total_content_length = len(file_content)
-                    
-                    # Skip the file if more than 50% of its content are HTML tags
-                    if html_content_length / total_content_length > 0.5:
+
+                    if html_content_length / total_content_length > 0.9:
                         print(f"File {file_name} is mainly HTML, skipping.")
                         continue
-                    
-                    file_content = self.remove_html_tags_and_empty_lines(file_content)
-                    combined_files += f"{file_content}\n"
+
+                    cleaned_content = self.remove_html_tags_and_empty_lines(file_content)
+                    lines = cleaned_content.split('\n')
+                    non_empty_lines = [line for line in lines if line.strip() != '']
+
+                    # Keyword check for copyright pages
+                    if any(keyword in cleaned_content.lower() for keyword in copyright_keywords):
+                        print(f"File {file_name} detected as a copyright page, skipping.")
+                        continue
+
+                    # Analyze the content to determine if it's likely an index or footnote
+                    if len(non_empty_lines) < 5 or (sum(len(line) for line in non_empty_lines) / len(non_empty_lines)) < 40:
+                        print(f"File {file_name} seems to be an index or footnote, skipping.")
+                        continue
+
+                    # Add a new line and the file name as an indicator for a new chapter
+                    combined_files += f"\n\nChapter: {file_name}\n\n{cleaned_content}\n"
             else:
                 print(f"File {file_name} not found, skipping.")
         return combined_files
+
+
 
     def save_consolidated_files(self, combined_files):
         output_file_base = self.base_path / 'book_segment'
@@ -93,6 +122,7 @@ def consolidate(books_folder,character_limit):
     books_folder = Path(books_folder)
     for book_folder in books_folder.iterdir():
         if book_folder.is_dir():
+            print(f"----Consolidating files in {book_folder}----")
             consolidator = EpubConsolidator(book_folder,character_limit)
             combined_files = consolidator.consolidate_files()
             consolidator.save_consolidated_files(combined_files)
